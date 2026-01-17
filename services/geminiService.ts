@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 const APP_CONTEXT = `
 You are Setu AI, the official guide for the GyanSetu Tracker app. 
@@ -85,7 +85,7 @@ export const getStudyPlanBreakdown = async (goal: string, timeRemainingMinutes: 
     });
     
     const responseText = response.text;
-    if (!responseText) {
+    if (typeof responseText !== 'string' || !responseText) {
       throw new Error("Empty response from AI");
     }
 
