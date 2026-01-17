@@ -83,9 +83,16 @@ export const getStudyPlanBreakdown = async (goal: string, timeRemainingMinutes: 
         }
       }
     });
-    const data = JSON.parse(response.text);
-    return data.steps as string[];
+    
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("Empty response from AI");
+    }
+
+    const data = JSON.parse(responseText);
+    return (data.steps || []) as string[];
   } catch (error) {
+    console.error("Plan Breakdown Error:", error);
     return ["Break the task into smaller chunks", "Focus for 25 mins", "Review quickly"];
   }
 };

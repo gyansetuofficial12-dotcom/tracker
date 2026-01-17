@@ -26,6 +26,11 @@ const App: React.FC = () => {
         console.error("Storage error", e);
       }
     }
+
+    // Request notification permission
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
   }, []);
 
   // Save goals to storage
@@ -33,7 +38,16 @@ const App: React.FC = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(goals));
   }, [goals]);
 
-  // Internal state tracking for 30-min cycles (UI only)
+  const sendNotification = (goalTitle: string) => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("GyanSetu Tracker", {
+        body: `BOARDS ARE COMING! ✍️ Continue working on: ${goalTitle}`,
+        icon: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZleHpsZXhzN3ZleHpsZXhzN3ZleHpsZXhzN3ZleHpsZXhzJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/1267Co3vPNBqQU/giphy.gif"
+      });
+    }
+  };
+
+  // Internal state tracking for 30-min cycles
   const checkIntervals = useCallback(() => {
     const now = Date.now();
     let updated = false;
@@ -44,8 +58,7 @@ const App: React.FC = () => {
       const timeSinceLastCheck = now - goal.lastReminderAt;
       if (timeSinceLastCheck >= REMINDER_INTERVAL_MS) {
         updated = true;
-        // Logic to potentially show a local alert if page is open
-        console.log(`Reminder: Boards are coming for ${goal.title}`);
+        sendNotification(goal.title);
         return { ...goal, lastReminderAt: now };
       }
       return goal;
